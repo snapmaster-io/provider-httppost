@@ -65,16 +65,13 @@ exports.getProjectId = () => {
   const projectId = environment === 'prod' ? 'snapmaster' : `snapmaster-${environment}`;
   return projectId;
 }
-/*
-exports.getEndpoint = () => {
-  const endpoint = environment === 'dev' ? 'https://snapmaster-dev-7hjh6mhjjq-uc.a.run.app' 
-                                         : 'https://snapmaster-iwswjzd7qa-uc.a.run.app';
-  return endpoint;
-}
 
 exports.getUrl = () => {
-  const endpoint = environment === 'dev' ? 'https://dev.snapmaster.io' 
-                                         : 'https://www.snapmaster.io';
-  return endpoint;
+  if (exports.getDevMode()) {
+    return 'http://localhost:8080';
+  } else {
+    const endpoint = environment === 'dev' ? 'https://dev.snapmaster.io' 
+                                           : 'https://www.snapmaster.io';
+    return endpoint;
+  }
 }
-*/

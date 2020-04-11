@@ -5,7 +5,10 @@
 //   deleteTrigger: delete the trigger
 //   handleTrigger: handle trigger invocation
 
-const database = require('./data/database.js');
+const database = require('./data/database');
+const auth0 = require('./auth0');
+const environment = require('./environment');
+const axios = require('axios');
 
 // define provider-specific constants
 const providerName = 'httppost';
@@ -110,12 +113,53 @@ exports.handleTrigger = async (userId, activeSnapId, event, payload) => {
     }
 
     // invoke the snap engine
-    // TODO: make http call
-    return null;
+    const response = await callSnapEngine(userId, activeSnapId, event, payload)
+    return response;
   } catch (error) {
     console.log(`handleTrigger: caught exception: ${error}`);
     return null;
   }
+}
+
+const callSnapEngine = async (userId, activeSnapId, event, payload) => {
+  try {
+    // get an access token for the provider service
+    // currently  provider services all do auth via Auth0, and all share an Auth0 API service clientID / secret
+    const token = await auth0.getAPIAccessToken();
+    if (!token) {
+      console.error('createTrigger: could not retrieve API access token');
+      return null;
+    }
+
+    // remove the secret passed in
+    delete payload.secret;
+
+    // construct snap engine dispatch URL
+    const snapEngineUrl = `${environment.getUrl()}/executesnap/${userId}/${activeSnapId}`;
+    const body = {
+      event: event,
+      ...payload
+    };
+
+    const headers = { 
+      'content-type': 'application/json',
+      'authorization': `Bearer ${token}`
+    };
+
+    const response = await axios.post(
+      snapEngineUrl,
+      body,
+      {
+        headers: headers
+      });
+
+    console.log(`${providerName}: invoked snap engine at ${snapEngineUrl}`);
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error(`callSnapEngine: caught exception: ${error}`);
+    return null;
+  }    
 }
 
 const getTrigger = async (triggerKey) => {
