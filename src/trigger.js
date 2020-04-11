@@ -55,11 +55,14 @@ exports.createTrigger = async (request) => {
     }
 
     const triggerKey = `${userId}:${activeSnapId}`;
-    webhookInfo.triggerUrl = `/httppost/webhook/${userId}/${activeSnapId}`;
+    webhookInfo.triggerUrl = `${environment.getProviderUrl()}/httppost/webhook/${userId}/${activeSnapId}`;
     webhookInfo.triggerKey = triggerKey;
 
+    // store the trigger 
     await storeTrigger(triggerKey, webhookInfo);
-    return webhookInfo;
+
+    // return just the trigger URL 
+    return { triggerUrl: webhookInfo.triggerUrl };
   } catch (error) {
     console.log(`createTrigger: caught exception: ${error}`);
     return null;
@@ -97,6 +100,7 @@ exports.handleTrigger = async (userId, activeSnapId, event, payload) => {
     }
     
     const triggerKey = `${userId}:${activeSnapId}`;
+    console.log(`${providerName}: triggered ${triggerKey} webhook`);
 
     // since this provider must track the state of its triggers, check first
     // whether the trigger is still active before invoking the snap engine
