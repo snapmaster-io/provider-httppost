@@ -5,6 +5,13 @@
 //   deleteTrigger: delete the trigger
 //   handleTrigger: handle trigger invocation
 
+const database = require('./data/database.js');
+
+// define provider-specific constants
+const providerName = 'httppost';
+const entityName = `${providerName}:webhooks`;
+const defaultEntityName = `${entityName}:default`;
+
 exports.createTrigger = async (request) => {
   try {
     const userId = request.userId;
@@ -23,20 +30,33 @@ exports.createTrigger = async (request) => {
       return null;
     }
 
-    if (event !== `${providerName}:post`) {
+    if (event !== 'post') {
       console.error(`createTrigger: unknown event "${event}"`);
       return null;
     }
 
-    const secret = param.secret;
-    if (!secret) {
-      console.error('createTrigger: missing required parameter "secret');
+    const webhook = param.webhook;
+    if (!webhook) {
+      console.error('createTrigger: missing required parameter "webhook"');
+      return null;
     }
 
-    const triggerUrl = `/post/webhook/${userId}/${activeSnapId}`;
+    // get the correct secret for the webhook (either passed explicitly, or the default)
+    const webhookInfo = (webhook === defaultEntityName) ? 
+      connectionInfo :
+      param[entityName];
 
-    const response = await storeTrigger(triggerUrl, secret);
-    return response;
+    if (!webhookInfo) {
+      console.error(`createTrigger: missing required parameter ${entityName}`);
+      return null;
+    }
+
+    const triggerKey = `${userId}:${activeSnapId}`;
+    webhookInfo.triggerUrl = `/httppost/webhook/${userId}/${activeSnapId}`;
+    webhookInfo.triggerKey = triggerKey;
+
+    await storeTrigger(triggerKey, webhookInfo);
+    return webhookInfo;
   } catch (error) {
     console.log(`createTrigger: caught exception: ${error}`);
     return null;
@@ -53,12 +73,12 @@ exports.deleteTrigger = async (request) => {
       return null;
     }
 
-    const triggerUrl = param.triggerUrl;
-    if (!triggerUrl) {
-      console.error('deleteTrigger: triggerData missing required parameter "triggerUrl"');
+    const triggerKey = triggerData.triggerKey;
+    if (!triggerKey) {
+      console.error('deleteTrigger: triggerData missing required parameter "triggerKey"');
     }
 
-    const response = await removeTrigger(triggerUrl);
+    const response = await removeTrigger(triggerKey);
     return response;
   } catch (error) {
     console.log(`deleteTrigger: caught exception: ${error}`);
@@ -66,28 +86,47 @@ exports.deleteTrigger = async (request) => {
   }
 }
 
-exports.handleTrigger = async (request) => {
+exports.handleTrigger = async (userId, activeSnapId, event, payload) => {
   try {
+    if (event !== 'post') {
+      console.error(`handleTrigger: unknown event ${event}`);
+      return null;
+    }
+    
+    const triggerKey = `${userId}:${activeSnapId}`;
+
     // since this provider must track the state of its triggers, check first
     // whether the trigger is still active before invoking the snap engine
-    const trigger = getTrigger()
+    const triggerInfo = await getTrigger(triggerKey);
+    if (!triggerInfo) {
+      console.error(`handleTrigger: could not find trigger key ${triggerKey}`);
+      return null;
+    }
 
+    // check secret (which is a simple property on the body)
+    if (payload.secret !== triggerInfo.secret) {
+      console.error(`handleTrigger: secret in request did not match trigger info`);
+      return null;
+    }
 
+    // invoke the snap engine
+    // TODO: make http call
+    return null;
   } catch (error) {
     console.log(`handleTrigger: caught exception: ${error}`);
     return null;
   }
 }
 
-const getTrigger = async (triggerUrl) => {
-    
+const getTrigger = async (triggerKey) => {
+  return await database.getDocument(triggerKey);
 }
 
-const removeTrigger = async (triggerUrl) => {
-  
+const removeTrigger = async (triggerKey) => {
+  return await database.removeDocument(triggerKey);
 }
 
-const storeTrigger = async (triggerUrl, secret) => {
-
+const storeTrigger = async (triggerKey, webhookInfo) => {
+  return await database.storeDocument(triggerKey, webhookInfo);
 }
 

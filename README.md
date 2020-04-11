@@ -1,11 +1,11 @@
 ![SnapMaster](https://github.com/snapmaster-io/snapmaster/blob/master/public/SnapMaster-logo-220.png)
-# Provider-POST
+# Provider-HTTPPOST
 
 This repository contains an HTTP POST provider for SnapMaster.  It handles POST requests to 
 a webhook-like URL which a user can call, and acts as a trigger to a SnapMaster snap (workflow).  The main work it does is to validate a shared secret, and then invoke 
 the appropriate snap hosted by the [SnapMaster-API](https://github.com/snapmaster-io/snapmaster-api) service.
 
-Provider-POST utilizes the express web server, and relies on [Auth0](https://auth0.com) for authenticating calls (which can only be made with authorization tokens obtained from the Auth0 token endpoint).
+Provider-HTTPPOST utilizes the express web server, and relies on [Auth0](https://auth0.com) for authenticating calls (which can only be made with authorization tokens obtained from the Auth0 token endpoint).
 
 It is a Google Cloud Platform app, with dependencies on Google Cloud Build, Google Cloud Run, and Google Cloud Pubsub. 
 

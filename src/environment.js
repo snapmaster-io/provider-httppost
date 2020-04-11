@@ -55,6 +55,17 @@ exports.getConfig = (type) => {
   return config;
 }
 
+// note - keyFilename below assumes a path relative to the app root, NOT the current directory
+exports.getCloudPlatformConfigFile = () => {
+  const cloudConfigFileName = `./config/cloud_platform_config_${environment}.json`;
+  return cloudConfigFileName;
+}
+
+exports.getProjectId = () => {
+  const projectId = environment === 'prod' ? 'snapmaster' : `snapmaster-${environment}`;
+  return projectId;
+}
+/*
 exports.getEndpoint = () => {
   const endpoint = environment === 'dev' ? 'https://snapmaster-dev-7hjh6mhjjq-uc.a.run.app' 
                                          : 'https://snapmaster-iwswjzd7qa-uc.a.run.app';
@@ -66,4 +77,4 @@ exports.getUrl = () => {
                                          : 'https://www.snapmaster.io';
   return endpoint;
 }
-
+*/

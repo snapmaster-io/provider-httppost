@@ -1,10 +1,10 @@
-// POST provider service for triggering a snap on an HTTP POST
+// HTTPPOST provider service for triggering a snap on an HTTP POST
 
 const { checkJwt, logRequest } = require('./requesthandler');
 const trigger = require('./trigger.js');
 
 // define provider-specific constants
-const providerName = 'post';
+const providerName = 'httppost';
 
 exports.createHandlers = (app) => {
   app.post('/createTrigger', logRequest, checkJwt, function(req, res){

@@ -31,8 +31,8 @@ app.use(bodyParser.urlencoded({
 const provider = require('./src/provider');
 provider.createHandlers(app);
 
-// Launch the API Server at PORT, or default port 8080
-const port = process.env.PORT || (configuration === 'prod' ? 8080 : 8082);
+// Launch the API Server at PORT, or default port 8080 (8081 for dev config)
+const port = process.env.PORT || (configuration === 'prod' ? 8080 : 8081);
 app.listen(port, () => {
   console.log('SnapMaster HTTP POST provider listening on port', port);
 });
