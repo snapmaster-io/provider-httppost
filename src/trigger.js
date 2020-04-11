@@ -158,9 +158,10 @@ const callSnapEngine = async (userId, activeSnapId, event, payload) => {
         headers: headers
       });
 
-    console.log(`${providerName}: invoked snap engine at ${snapEngineUrl}`);
-    const data = response.data;
-    return data;
+    const message = `${providerName}: invoked snap engine at ${snapEngineUrl}`;
+    console.log(message);
+    return { status: 'success', message: message };
+    ;
   } catch (error) {
     console.error(`callSnapEngine: caught exception: ${error}`);
     return null;

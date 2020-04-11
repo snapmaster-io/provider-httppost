@@ -34,7 +34,9 @@ exports.createHandlers = (app) => {
 
       // handle the webhook
       const handle = async (payload) => {
-        const response = await trigger.handleTrigger(userId, activeSnapId, 'post', payload);
+        const response = await trigger.handleTrigger(userId, activeSnapId, 'post', payload) || 
+          { status: 'error', message: `${providerName}: could not trigger active snap ${userId}:${activeSnapId} `};
+
         res.status(200).send(response);
       }
 
