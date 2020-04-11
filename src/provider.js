@@ -1,51 +1,47 @@
 // POST provider service for triggering a snap on an HTTP POST
 
 const { checkJwt, logRequest } = require('./requesthandler');
+const trigger = require('./trigger.js');
 
 // define provider-specific constants
 const providerName = 'post';
-const entityName = `${providerName}:projects`;
-const defaultEntityName = `${entityName}:default`;
-
 
 exports.createHandlers = (app) => {
-  // POST handler for invokeAction  
-  app.post('/invokeAction', logRequest, checkJwt, function(req, res){
-    const invoke = async (payload) => {
-      const result = await invokeAction(payload);
+  app.post('/createTrigger', logRequest, checkJwt, function(req, res){
+    const create = async (payload) => {
+      const result = await trigger.createTrigger(payload);
       res.status(200).send(result);
     }
 
-    invoke(req.body);
+    create(req.body);
   });
-}
 
-const invokeAction = async (request) => {
-  try {
-    const activeSnapId = request.activeSnapId;
-    const param = request.param;
-    if (!activeSnapId || !param) {
-      console.error('invokeAction: missing one of activeSnapId or param in request');
-      return null;
+  app.post('/deleteTrigger', logRequest, checkJwt, function(req, res){
+    const del = async (payload) => {
+      const result = await trigger.deleteTrigger(payload);
+      res.status(200).send(result);
     }
 
-    // get required parameters
-    const action = param.action;
-    if (!action) {
-      console.error('invokeAction: missing required parameter "action"');
-      return null;
+    del(req.body);
+  });
+
+  // POST webhooks endpoint
+  app.post(`/${providerName}/webhooks/:userId/:activeSnapId`, function(req, res){
+    try {
+      const userId = decodeURI(req.params.userId);
+      const activeSnapId = req.params.activeSnapId;
+      console.log(`POST /${providerName}/webhooks: userId ${userId}, activeSnapId ${activeSnapId}`);
+
+      // handle the webhook
+      const handle = async (payload) => {
+        const response = await trigger.handleTrigger(userId, activeSnapId, 'post', payload);
+        res.status(200).send(response);
+      }
+
+      handle(req.body);
+    } catch (error) {
+      console.error(`${providerName} webhook caught exception: ${error}`);
+      res.status(500).send(error);
     }
-
-    console.log(`${providerName}: executing action ${action}`);
-
-    // construct script name and environment
-
-    console.log(`gcp: finished executing action ${action}; output: ${outputString}`);
-
-    // return output
-    return output;
-  } catch (error) {
-    console.log(`invokeAction: caught exception: ${error}`);
-    return null;
-  }
+  });
 }
