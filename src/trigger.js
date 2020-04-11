@@ -56,7 +56,7 @@ exports.createTrigger = async (request) => {
 
     const triggerKey = `${userId}:${activeSnapId}`;
     webhookInfo.triggerUrl = 
-      encodeURI(`${environment.getProviderUrl(providerName)}/httppost/webhook/${userId}/${activeSnapId}`);
+      encodeURI(`${environment.getProviderUrl(providerName)}/httppost/webhooks/${userId}/${activeSnapId}`);
     webhookInfo.triggerKey = triggerKey;
 
     // store the trigger 
