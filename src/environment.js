@@ -4,8 +4,10 @@
 //   getEnv(): gets the current environment (dev | prod)
 //   setEnv(): sets the current environment (dev | prod)
 //   getConfig(type): gets the config of type 'type' for the current env (dev | prod)
-//   geteEndpoint(): gets the Google Cloud Run endpoint for the current env (dev | prod)
-//   getUrl(): gets the URL for the app running in the current env (dev | prod)
+//   getCloudPlatformConfigFile(): gets the GCP config for the current env (dev | prod)
+//   getProjectId(): gets the GCP project ID for the current env (dev | prod)
+//   getProviderUrl(): gets the URL for this provider, running in the current env (dev | prod)
+//   getUrl(): gets the URL for the snapmaster api / engine running in the current env (dev | prod)
 
 var environment;
 var devMode;
@@ -64,6 +66,15 @@ exports.getCloudPlatformConfigFile = () => {
 exports.getProjectId = () => {
   const projectId = environment === 'prod' ? 'snapmaster' : `snapmaster-${environment}`;
   return projectId;
+}
+
+exports.getProviderUrl = (providerName) => {
+  if (exports.getDevMode()) {
+    return 'http://localhost:8081';
+  } else {
+    const endpoint = `https://provider-${providerName}${environment === 'dev' && '-dev'}.snapmaster.io`;
+    return endpoint;  
+  }
 }
 
 exports.getUrl = () => {
