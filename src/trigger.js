@@ -63,7 +63,7 @@ exports.createTrigger = async (request) => {
     await storeTrigger(triggerKey, webhookInfo);
 
     // return just the trigger URL 
-    return { triggerUrl: webhookInfo.triggerUrl };
+    return { url: webhookInfo.triggerUrl };
   } catch (error) {
     console.log(`createTrigger: caught exception: ${error}`);
     return null;
@@ -107,14 +107,16 @@ exports.handleTrigger = async (userId, activeSnapId, event, payload) => {
     // whether the trigger is still active before invoking the snap engine
     const triggerInfo = await getTrigger(triggerKey);
     if (!triggerInfo) {
-      console.error(`handleTrigger: could not find trigger key ${triggerKey}`);
-      return null;
+      const message = `could not find trigger key ${triggerKey}`;
+      console.error(`handleTrigger: ${message}`);
+      return { status: 'error', message: message };
     }
 
     // check secret (which is a simple property on the body)
     if (payload.secret !== triggerInfo.secret) {
-      console.error(`handleTrigger: secret in request did not match trigger info`);
-      return null;
+      const message = `secret in request did not match trigger info`;
+      console.error(`handleTrigger: ${message}`);
+      return { status: 'error', message: message };
     }
 
     // invoke the snap engine
