@@ -25,15 +25,6 @@ const configs = {
     dev: require(`../config/auth0_config_dev.json`),
     prod: require(`../config/auth0_config_prod.json`)
   },
-  /*
-  gcp: {
-    dev: require(`../config/google_auth_config_dev.json`),
-    prod: require(`../config/google_auth_config_prod.json`)
-  },
-  google: {
-    dev: require(`../config/google_auth_config_dev.json`),
-    prod: require(`../config/google_auth_config_prod.json`)
-  },*/
 };
 
 // get the environment (dev or prod)
@@ -72,7 +63,7 @@ exports.getProviderUrl = (providerName) => {
   if (exports.getDevMode()) {
     return 'http://localhost:8081';
   } else {
-    const endpoint = `https://provider-${providerName}${environment === 'dev' && '-dev'}.snapmaster.io`;
+    const endpoint = `https://provider-${providerName}${environment === 'dev' ? '-dev' : ''}.snapmaster.io`;
     return endpoint;  
   }
 }
