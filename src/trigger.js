@@ -55,15 +55,15 @@ exports.createTrigger = async (request) => {
     }
 
     const triggerKey = `${userId}:${activeSnapId}`;
-    webhookInfo.triggerUrl = 
+    webhookInfo.url = 
       encodeURI(`${environment.getProviderUrl(providerName)}/httppost/webhooks/${userId}/${activeSnapId}`);
-    webhookInfo.triggerKey = triggerKey;
+    webhookInfo.key = triggerKey;
 
     // store the trigger 
     await storeTrigger(triggerKey, webhookInfo);
 
     // return just the trigger URL 
-    return { url: webhookInfo.triggerUrl };
+    return { url: webhookInfo.url, id: webhookInfo.key };
   } catch (error) {
     console.log(`createTrigger: caught exception: ${error}`);
     return null;
@@ -80,9 +80,10 @@ exports.deleteTrigger = async (request) => {
       return null;
     }
 
-    const triggerKey = triggerData.triggerKey;
+    const triggerKey = triggerData.id;
     if (!triggerKey) {
-      console.error('deleteTrigger: triggerData missing required parameter "triggerKey"');
+      console.error('deleteTrigger: triggerData missing required parameter "id"');
+      return null;
     }
 
     const response = await removeTrigger(triggerKey);
