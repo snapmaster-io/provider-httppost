@@ -1,7 +1,7 @@
 // auth0 management API utility functions
 
 // exports:
-// getAPIAccessToken(): get access token for SnapMaster API (used to communicate to providers)
+//   getAPIAccessToken(): get access token for SnapMaster API (used to communicate to providers)
 
 const axios = require('axios');
 const environment = require('./environment');
@@ -35,5 +35,5 @@ exports.getAPIAccessToken = async () => {
     console.log(`getAPIAccessToken: caught exception: ${error}`);
     return null;
   }
-};
+}
 
