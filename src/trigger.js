@@ -121,7 +121,7 @@ exports.handleTrigger = async (userId, activeSnapId, event, payload) => {
     }
 
     // invoke the snap engine
-    const response = await callSnapEngine(userId, activeSnapId, event, payload)
+    const response = await callSnapEngine(userId, activeSnapId, event, payload);
     return response;
   } catch (error) {
     console.log(`handleTrigger: caught exception: ${error}`);
@@ -164,7 +164,6 @@ const callSnapEngine = async (userId, activeSnapId, event, payload) => {
     const message = `${providerName}: invoked snap engine at ${snapEngineUrl}`;
     console.log(message);
     return { status: 'success', message: message };
-    ;
   } catch (error) {
     console.error(`callSnapEngine: caught exception: ${error}`);
     return null;
